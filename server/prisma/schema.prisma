@@ -1,0 +1,36 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  color     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  markers   Marker[]
+
+  @@map("categories")
+}
+
+model Marker {
+  id            String   @id @default(uuid())
+  title         String
+  description   String   @default("")
+  x             Float
+  y             Float
+  categoryId    String   @map("category_id")
+  category      Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdBy     String   @map("created_by")
+  createdByName String   @map("created_by_name")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@map("markers")
+}

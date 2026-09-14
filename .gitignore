@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+.env
+server/tiles/**
+!server/tiles/.gitkeep
+*.log
+.DS_Store

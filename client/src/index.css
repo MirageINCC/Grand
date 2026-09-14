@@ -1,0 +1,182 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.toolbar h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-container {
+  flex: 1;
+  min-height: 0;
+}
+
+.new-marker-button.active {
+  background: #e63946;
+  color: #fff;
+}
+
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-badge img {
+  border-radius: 50%;
+}
+
+.admin-pill {
+  background: #2a9d8f;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.login-button {
+  color: #fff;
+  background: #5865f2;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.marker-popup h3 {
+  margin: 0 0 6px;
+}
+
+.marker-popup p {
+  margin: 6px 0;
+}
+
+.marker-meta {
+  font-size: 12px;
+  color: #666;
+}
+
+.marker-popup-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  width: 360px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.modal input,
+.modal select,
+.modal textarea {
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+button.danger {
+  background: #e63946;
+  color: #fff;
+  border: none;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.category-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-list li input[type="text"],
+.category-list li input:not([type="color"]) {
+  flex: 1;
+}
+
+.category-create-form {
+  display: flex;
+  gap: 6px;
+}
+
+.category-create-form input:not([type="color"]) {
+  flex: 1;
+}
+
+.form-error {
+  color: #e63946;
+  font-size: 13px;
+  margin: 0;
+}

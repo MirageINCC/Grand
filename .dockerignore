@@ -1,0 +1,7 @@
+**/node_modules
+**/dist
+server/tiles/*
+!server/tiles/.gitkeep
+.git
+.env
+*.log
