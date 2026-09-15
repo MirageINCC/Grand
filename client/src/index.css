@@ -44,6 +44,15 @@ body {
   min-height: 0;
 }
 
+/* Leaflet 1.9's Safari tile-seam workaround sets mix-blend-mode: plus-lighter on
+   tiles, which visibly washes out lighter-colored map imagery to near-white in
+   Safari (the blend mode adds color values against the container background).
+   Reset it — !important because leaflet.css's rule has equal specificity and
+   may be bundled after this file. */
+.leaflet-tile {
+  mix-blend-mode: normal !important;
+}
+
 .new-marker-button.active {
   background: #e63946;
   color: #fff;
