@@ -25,7 +25,10 @@ npm install
 npm run tiles -- --input /pfad/zu/eurer-map.png --output ./server/tiles
 ```
 
-Das Skript gibt am Ende einen `MAX_ZOOM`-Wert aus — diesen in `client/src/config.ts` (`MAP_MAX_ZOOM`) eintragen.
+Das Skript gibt am Ende die Werte aus, die in `client/src/config.ts` einzutragen sind:
+`MAP_MAX_ZOOM` immer, und bei einem **nicht-quadratischen** Kartenbild zusätzlich
+`MAP_CONTENT_WIDTH`/`MAP_CONTENT_HEIGHT` (sonst zeigt die Karte einen falschen Ausschnitt bzw.
+lässt euch in leere Bereiche schwenken — Details dazu in [DEPLOYMENT.md](./DEPLOYMENT.md)).
 
 ## 4. Lokale Entwicklung
 
@@ -43,6 +46,22 @@ Browser: http://localhost:5173
 docker compose up --build
 ```
 Führt beim Start automatisch `prisma migrate deploy` aus. App läuft unter http://localhost:3000 (API, Auth, Tiles und der gebaute Client aus einem Origin).
+
+## Bedienung
+
+- **Markierung setzen**: Admins klicken direkt auf eine freie Kartenstelle — es öffnet sich sofort
+  das Erstellen-Menü an der geklickten Position (kein separater "Platzierungs-Modus" nötig).
+  Kategorie wird über farbige Swatches statt einer Text-Dropdown ausgewählt.
+- **Filter**: Jeder Betrachter (auch ohne Login) kann über den "Filter"-Button in der Toolbar
+  einzelne Kategorien ein-/ausblenden — rein clientseitig, ändert nichts an den Daten.
+- **Kategorien verwalten**: nur für Admins, über den "Kategorien"-Button (Name + Farbe anlegen/
+  bearbeiten/löschen).
+
+## Design anpassen
+
+Die komplette Farbpalette (dunkles Glassmorphism mit violettem Glow) sitzt als CSS-Variablen am
+Anfang von `client/src/index.css` (`--accent`, `--panel`, `--border`, …) — für ein anderes
+Branding reicht es meist, nur diese Werte zu ändern.
 
 ## Berechtigungen
 
