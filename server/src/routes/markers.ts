@@ -24,7 +24,7 @@ markersRouter.get("/", async (_req, res) => {
   res.json(markers);
 });
 
-markersRouter.post("/", requireAdmin, async (req, res) => {
+markersRouter.post("/", requireAdmin, async (req, res, next) => {
   const parsed = markerInput.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
@@ -46,11 +46,11 @@ markersRouter.post("/", requireAdmin, async (req, res) => {
       res.status(400).json({ error: "categoryId does not exist" });
       return;
     }
-    throw error;
+    next(error);
   }
 });
 
-markersRouter.patch("/:id", requireAdmin, async (req, res) => {
+markersRouter.patch("/:id", requireAdmin, async (req, res, next) => {
   const parsed = markerInput.partial().safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
@@ -65,19 +65,28 @@ markersRouter.patch("/:id", requireAdmin, async (req, res) => {
     });
     res.json(marker);
   } catch (error) {
-    if ((error as { code?: string }).code === "P2003") {
+    const code = (error as { code?: string }).code;
+    if (code === "P2003") {
       res.status(400).json({ error: "categoryId does not exist" });
       return;
     }
-    res.status(404).json({ error: "Marker not found" });
+    if (code === "P2025") {
+      res.status(404).json({ error: "Marker not found" });
+      return;
+    }
+    next(error);
   }
 });
 
-markersRouter.delete("/:id", requireAdmin, async (req, res) => {
+markersRouter.delete("/:id", requireAdmin, async (req, res, next) => {
   try {
     await prisma.marker.delete({ where: { id: req.params.id } });
     res.status(204).end();
-  } catch {
-    res.status(404).json({ error: "Marker not found" });
+  } catch (error) {
+    if ((error as { code?: string }).code === "P2025") {
+      res.status(404).json({ error: "Marker not found" });
+      return;
+    }
+    next(error);
   }
 });

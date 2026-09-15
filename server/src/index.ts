@@ -32,6 +32,17 @@ app.get(/^(?!\/(api|auth|tiles)\/).*/, (_req, res) => {
   });
 });
 
+// Catches errors forwarded via next(error) from route handlers (e.g. unexpected
+// Prisma/DB failures) so API clients get a JSON response instead of Express's
+// default HTML error page, and the process doesn't crash on an unhandled rejection.
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(err);
+  if (res.headersSent) {
+    return;
+  }
+  res.status(500).json({ error: "Internal server error" });
+});
+
 app.listen(env.PORT, () => {
   console.log(`gta-map server listening on :${env.PORT}`);
 });
