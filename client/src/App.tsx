@@ -7,6 +7,7 @@ import type { Category, Marker } from "./api/types";
 import { MapView } from "./map/MapView";
 import { MarkerForm } from "./map/MarkerForm";
 import { CategoryManager } from "./map/CategoryManager";
+import { CategoryFilter } from "./map/CategoryFilter";
 
 function AppContent() {
   const { isAdmin } = useAuth();
@@ -15,6 +16,24 @@ function AppContent() {
   const [draft, setDraft] = useState<{ x: number; y: number } | null>(null);
   const [editingMarker, setEditingMarker] = useState<Marker | null>(null);
   const [managingCategories, setManagingCategories] = useState(false);
+  // Not persisted anywhere on purpose — this only affects what the current
+  // viewer sees, it's not admin/category data. New categories aren't in this
+  // set, so they show up by default.
+  const [hiddenCategoryIds, setHiddenCategoryIds] = useState<Set<string>>(new Set());
+
+  function toggleCategoryVisibility(categoryId: string) {
+    setHiddenCategoryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
+  }
+
+  const visibleMarkers = markers.filter((m) => !hiddenCategoryIds.has(m.categoryId));
 
   async function refresh() {
     const [cats, marks] = await Promise.all([listCategories(), listMarkers()]);
@@ -52,6 +71,11 @@ function AppContent() {
           <h1>TEKKNiNE Interactive Map</h1>
         </div>
         <div className="toolbar-actions">
+          <CategoryFilter
+            categories={categories}
+            hiddenCategoryIds={hiddenCategoryIds}
+            onToggle={toggleCategoryVisibility}
+          />
           {isAdmin && (
             <button type="button" onClick={() => setManagingCategories(true)}>
               Kategorien
@@ -63,7 +87,7 @@ function AppContent() {
 
       <main className="map-container">
         <MapView
-          markers={markers}
+          markers={visibleMarkers}
           isAdmin={isAdmin}
           onPlaceMarker={(x, y) => setDraft({ x, y })}
           onEditMarker={setEditingMarker}
