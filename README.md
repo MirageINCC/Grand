@@ -48,3 +48,9 @@ Führt beim Start automatisch `prisma migrate deploy` aus. App läuft unter http
 
 - Karte ansehen: öffentlich, kein Login nötig.
 - Markierungen/Kategorien erstellen, bearbeiten, löschen: nur eingeloggte Discord-User mit einer Rolle aus `ADMIN_ROLE_IDS` in `DISCORD_GUILD_ID`.
+
+## Produktiv-Deployment
+
+Läuft aktuell live auf Mittwald unter https://grand.covern.cloud — Aufbau, Redeploy-Anleitung
+und bekannte Stolperfallen (u. a. GHCR-Image-Namen, `ADMIN_ROLE_IDS`) stehen in
+[DEPLOYMENT.md](./DEPLOYMENT.md).
