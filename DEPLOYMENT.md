@@ -85,6 +85,30 @@ curl -s  https://grand.covern.cloud/auth/me            # {"user":null} ohne Cook
 
 Danach im Browser einloggen (`/auth/discord/login`) und prüfen, ob das Admin-Badge erscheint.
 
+## Bekannter Bug: Karte blieb nach dem ersten Tiles-Upload leer/weiß (behoben)
+
+Nach dem ersten Tiles-Upload zeigte die Karte in **jedem** Browser (Safari, Chrome mobil) nur eine
+leere graue Fläche — obwohl die Tile-URLs direkt aufgerufen korrekt luden. Ursache war **kein**
+Browser-Bug, sondern ein Koordinatensystem-Fehler:
+
+`L.CRS.Simple`s Standard-Transformation kehrt die Y-Achse beim Umrechnen in Pixel um
+(`point.y = -lat`), erwartet also "Norden" (höherer y-Wert) als "oben". Unsere Tile-Pyramide
+(`generate-tiles.ts`) nummeriert Kacheln aber ganz normal wie ein Bild — `y=0` oben, nach unten
+steigend — und `marker.x`/`marker.y` sind serverseitig genauso als `[0, MAP_SIZE]` validiert
+(`markers.ts`). Mit der Standard-CRS forderte die Karte deshalb bei jedem Zoom Kacheln **außerhalb**
+des generierten Bereichs an (z. B. `/tiles/1/0/-1.png` statt `/tiles/1/0/1.png`) — bestätigt über
+den Netzwerk-Tab eines Nutzers in Safari.
+
+**Fix** (`client/src/map/MapView.tsx`): eigene CRS definieren, die von `L.CRS.Simple` erbt, aber die
+Transformation auf `(1, 0, 1, 0)` statt `(1, 0, -1, 0)` setzt — hebt die Vorzeichenumkehr auf.
+Betrifft Kacheln und Marker gleichermaßen (beide nutzen dieselbe CRS), keine Datenmigration nötig
+(zum Zeitpunkt des Fixes existierten noch keine Marker).
+
+Separat davon wurde vorher auch ein echter, aber unabhängiger kosmetischer Safari-Bug gefixt
+(`mix-blend-mode: plus-lighter` auf `.leaflet-tile`, Leaflets eigener Workaround für ein anderes
+Safari-Rendering-Problem, wäscht helle Kartenbilder aus) — der blieb als harmlose Absicherung im
+Code (`index.css`), war aber nicht die Ursache dieses Bugs.
+
 ## Kartenbild/Tiles hochladen
 
 Tiles werden **nicht** ins Docker-Image gebaut (sie sind ja auch nicht im Git-Repo, s. README) —
