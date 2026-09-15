@@ -1,3 +1,25 @@
+/* ==========================================================================
+   Design tokens
+   Mirrors the dark glassmorphism / violet-glow style used across the team's
+   other sites (see https://p-hfz9by.project.space/ueberuns/index.php) —
+   near-black background with soft purple radial glow, translucent blurred
+   cards, thin purple-tinted borders, glowing purple accents on interactive
+   elements.
+   ========================================================================== */
+:root {
+  --accent: #8b3dff;
+  --accent-light: #b77aff;
+  --accent-soft: #9c55ff;
+  --bg: #050509;
+  --panel: linear-gradient(145deg, rgba(28, 20, 46, 0.92), rgba(8, 6, 14, 0.96));
+  --border: rgba(139, 61, 255, 0.35);
+  --border-strong: rgba(183, 122, 255, 0.6);
+  --text: #ffffff;
+  --text-dim: rgba(255, 255, 255, 0.6);
+  --text-dimmer: rgba(255, 255, 255, 0.4);
+  --danger: #e6394f;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -10,7 +32,10 @@ body,
 }
 
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at 15% 20%, rgba(139, 61, 255, 0.12), transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(139, 61, 255, 0.08), transparent 30%), var(--bg);
+  color: var(--text);
 }
 
 .app {
@@ -20,17 +45,24 @@ body {
 }
 
 .toolbar {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  background: #1a1a1a;
-  color: #fff;
+  padding: 14px 20px;
+  background: rgba(5, 5, 9, 0.88);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: var(--text);
 }
 
 .toolbar h1 {
   font-size: 18px;
   margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .toolbar-actions {
@@ -42,6 +74,59 @@ body {
 .map-container {
   flex: 1;
   min-height: 0;
+}
+
+/* ==========================================================================
+   Buttons — a plain <button type="submit"> reads as the primary (purple
+   gradient) action, everything else as the quieter secondary/ghost style,
+   so components don't need extra className props to opt in.
+   ========================================================================== */
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 9px;
+  padding: 8px 16px;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  color: var(--text);
+  background: rgba(139, 61, 255, 0.1);
+  border-color: rgba(139, 61, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button[type="submit"] {
+  color: var(--text);
+  background: linear-gradient(135deg, #7d32ef, var(--accent-soft));
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 10px 25px rgba(139, 61, 255, 0.22);
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8b3dff, #ad70ff);
+  box-shadow: 0 12px 30px rgba(139, 61, 255, 0.32);
+  border-color: var(--border-strong);
+}
+
+button.danger {
+  background: rgba(230, 57, 79, 0.12);
+  color: #ff8a97;
+  border: 1px solid rgba(230, 57, 79, 0.4);
+}
+
+button.danger:hover:not(:disabled) {
+  background: rgba(230, 57, 79, 0.22);
+  border-color: rgba(230, 57, 79, 0.6);
+  color: #ffb3bb;
 }
 
 /* Leaflet 1.9's Safari tile-seam workaround sets mix-blend-mode: plus-lighter on
@@ -62,11 +147,35 @@ body {
   background: #0a1a24 !important;
 }
 
+/* Leaflet's own popup chrome, restyled to match the app's dark theme instead
+   of its default white card. */
+.leaflet-popup-content-wrapper {
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border);
+  border-radius: 12px !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(139, 61, 255, 0.12) !important;
+}
+
+.leaflet-popup-tip {
+  background: #14101e !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--text-dim) !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: var(--text) !important;
+}
+
 .swatch-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
   font-size: 14px;
+  color: var(--text-dim);
 }
 
 .swatch-picker {
@@ -103,7 +212,7 @@ body {
   height: 28px;
   border-radius: 50%;
   background: var(--swatch-color);
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
@@ -112,11 +221,11 @@ body {
 }
 
 .swatch input:focus-visible ~ .swatch-dot {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5865f2;
+  box-shadow: 0 0 0 2px #0d0a14, 0 0 0 4px var(--accent-light);
 }
 
 .swatch-selected .swatch-dot {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--swatch-color);
+  box-shadow: 0 0 0 2px #0d0a14, 0 0 0 4px var(--swatch-color), 0 0 14px var(--swatch-color);
 }
 
 .swatch-name {
@@ -127,7 +236,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #444;
+  color: var(--text-dimmer);
 }
 
 /* Leaflet positions the icon wrapper itself via an inline transform, so the
@@ -145,32 +254,53 @@ body {
 .user-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .user-badge img {
   border-radius: 50%;
+  border: 2px solid rgba(155, 92, 255, 0.9);
+  box-shadow: 0 0 12px rgba(155, 92, 255, 0.5);
 }
 
 .admin-pill {
-  background: #2a9d8f;
-  color: #fff;
-  padding: 1px 6px;
+  background: rgba(139, 61, 255, 0.15);
+  border: 1px solid rgba(139, 61, 255, 0.5);
+  color: var(--accent-light);
+  padding: 1px 8px;
   border-radius: 999px;
   font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .login-button {
-  color: #fff;
-  background: #5865f2;
-  padding: 6px 12px;
-  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  padding: 8px 16px;
+  border-radius: 10px;
   text-decoration: none;
   font-size: 14px;
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 20px rgba(0, 0, 0, 0.25),
+    0 0 16px rgba(139, 61, 255, 0.1);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-button:hover {
+  border-color: var(--accent-light);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px rgba(0, 0, 0, 0.35),
+    0 0 22px rgba(139, 61, 255, 0.25);
+  transform: translateY(-1px);
 }
 
 .marker-popup h3 {
   margin: 0 0 6px;
+  color: var(--text);
 }
 
 .marker-popup p {
@@ -179,7 +309,7 @@ body {
 
 .marker-meta {
   font-size: 12px;
-  color: #666;
+  color: var(--text-dimmer);
 }
 
 .marker-popup-actions {
@@ -191,7 +321,9 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -199,14 +331,24 @@ body {
 }
 
 .modal {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
   width: 360px;
   max-width: 90vw;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  color: var(--text);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 70px rgba(0, 0, 0, 0.5),
+    0 0 45px rgba(139, 61, 255, 0.1);
+}
+
+.modal h3 {
+  margin: 0;
 }
 
 .modal label {
@@ -214,27 +356,37 @@ body {
   flex-direction: column;
   gap: 4px;
   font-size: 14px;
+  color: var(--text-dim);
 }
 
 .modal input,
 .modal select,
 .modal textarea {
   font: inherit;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.modal input:focus,
+.modal select:focus,
+.modal textarea:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px rgba(139, 61, 255, 0.18);
+}
+
+.modal input[type="color"] {
+  padding: 2px;
+  height: 36px;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-}
-
-button.danger {
-  background: #e63946;
-  color: #fff;
-  border: none;
 }
 
 .category-list {
@@ -269,7 +421,7 @@ button.danger {
 }
 
 .form-error {
-  color: #e63946;
+  color: #ff8a97;
   font-size: 13px;
   margin: 0;
 }
