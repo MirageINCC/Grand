@@ -56,3 +56,38 @@ export function categoryIcon(color: string): L.DivIcon {
   cache.set(color, icon);
   return icon;
 }
+
+let warning: L.DivIcon | null = null;
+
+/** Replaces a business's pin once its 24h collect timer drops under 5h remaining — same
+ *  teardrop shape as categoryIcon for consistency, but red with a pulsing glow (CSS animation,
+ *  see .category-marker-icon-warning in index.css) instead of a category color, so it reads as
+ *  an alert rather than just "a different category". */
+export function warningIcon(): L.DivIcon {
+  if (warning) return warning;
+
+  warning = L.divIcon({
+    className: "category-marker-icon category-marker-icon-warning",
+    html: `<svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="warning-pin-shadow" x="-50%" y="-20%" width="200%" height="160%">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#000" flood-opacity="0.4"/>
+        </filter>
+      </defs>
+      <path
+        d="M15 2C8.4 2 3 7.4 3 14c0 9 12 22 12 22s12-13 12-22c0-6.6-5.4-12-12-12z"
+        fill="#e6394f"
+        stroke="#8f1c2b"
+        stroke-width="1.5"
+        filter="url(#warning-pin-shadow)"
+      />
+      <rect x="13.6" y="7.5" width="2.8" height="9" rx="1.4" fill="#fff"/>
+      <circle cx="15" cy="19.5" r="1.6" fill="#fff"/>
+    </svg>`,
+    iconSize: [30, 40],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -34],
+  });
+
+  return warning;
+}

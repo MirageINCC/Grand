@@ -3,6 +3,7 @@ import { z } from "zod";
 import { MAP_SIZE } from "../config.js";
 import { prisma } from "../db.js";
 import { requireAdmin } from "../middleware/requireAdmin.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 export const markersRouter = Router();
 
@@ -71,6 +72,27 @@ markersRouter.patch("/:id", requireAdmin, async (req, res, next) => {
       return;
     }
     if (code === "P2025") {
+      res.status(404).json({ error: "Marker not found" });
+      return;
+    }
+    next(error);
+  }
+});
+
+// Resets a marker's 24h "Unternehmen" collect timer. Open to any logged-in Discord user (not
+// just admins) — unlike creating/editing/deleting markers, "picking up" a business isn't an
+// admin action. Always scoped to a single marker by primary key, so it can't touch any other
+// marker or category; harmless (if meaningless) to call on a marker of any other category.
+markersRouter.post("/:id/collect", requireAuth, async (req, res, next) => {
+  try {
+    const marker = await prisma.marker.update({
+      where: { id: req.params.id },
+      data: { lastCollectedAt: new Date() },
+      include: { category: true },
+    });
+    res.json(marker);
+  } catch (error) {
+    if ((error as { code?: string }).code === "P2025") {
       res.status(404).json({ error: "Marker not found" });
       return;
     }

@@ -31,6 +31,13 @@ model Marker {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
+  // Anchor timestamp for the 24h "Unternehmen" collect timer (see routes/markers.ts's
+  // POST /:id/collect) and the 15-minute cooldown on the "Abholen" button — both are derived
+  // from this on the client rather than stored as a countdown, which would go stale. Harmless
+  // and unused for markers of any other category. Defaults to now() so a freshly created
+  // business starts with a full 24h.
+  lastCollectedAt DateTime @default(now()) @map("last_collected_at")
+
   @@index([categoryId])
   @@map("markers")
 }

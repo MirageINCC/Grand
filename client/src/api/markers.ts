@@ -18,3 +18,8 @@ export function updateMarker(id: string, input: Partial<MarkerInput>): Promise<M
 export function deleteMarker(id: string): Promise<void> {
   return apiFetch(`/api/markers/${id}`, { method: "DELETE" });
 }
+
+/** Resets the 24h "Unternehmen" collect timer for a marker. Any logged-in user may call this. */
+export function collectMarker(id: string): Promise<Marker> {
+  return apiFetch(`/api/markers/${id}/collect`, { method: "POST" });
+}

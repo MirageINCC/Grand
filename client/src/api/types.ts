@@ -14,6 +14,8 @@ export interface Marker {
   category: Category;
   createdBy: string;
   createdByName: string;
+  /** Anchor for the 24h "Unternehmen" collect timer — see BusinessPanel.tsx. ISO date string. */
+  lastCollectedAt: string;
 }
 
 export interface SessionUser {

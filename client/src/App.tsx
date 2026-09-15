@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { LoginButton } from "./auth/LoginButton";
 import { listCategories, createCategory, updateCategory, deleteCategory } from "./api/categories";
-import { listMarkers, createMarker, updateMarker, deleteMarker, type MarkerInput } from "./api/markers";
+import { listMarkers, createMarker, updateMarker, deleteMarker, collectMarker, type MarkerInput } from "./api/markers";
 import type { Category, Marker } from "./api/types";
 import { MapView } from "./map/MapView";
 import { MarkerForm } from "./map/MarkerForm";
 import { CategoryManager } from "./map/CategoryManager";
 import { CategoryFilter } from "./map/CategoryFilter";
+import { BusinessPanel } from "./map/BusinessPanel";
+import { isBusinessMarker } from "./map/business";
 
 function AppContent() {
   const { isAdmin } = useAuth();
@@ -34,6 +36,15 @@ function AppContent() {
   }
 
   const visibleMarkers = markers.filter((m) => !hiddenCategoryIds.has(m.categoryId));
+  // Deliberately not filtered by the visibility toggle above — this is a management panel
+  // (timers, collecting, deleting), not a map-viewing preference, so hiding "Unternehmen" from
+  // the map shouldn't also hide it here.
+  const businessMarkers = markers.filter(isBusinessMarker);
+
+  async function handleCollect(id: string) {
+    const updated = await collectMarker(id);
+    setMarkers((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
+  }
 
   async function refresh() {
     const [cats, marks] = await Promise.all([listCategories(), listMarkers()]);
@@ -139,6 +150,13 @@ function AppContent() {
           onClose={() => setManagingCategories(false)}
         />
       )}
+
+      <BusinessPanel
+        businesses={businessMarkers}
+        isAdmin={isAdmin}
+        onCollect={handleCollect}
+        onDelete={(marker) => void handleDeleteMarker(marker)}
+      />
     </div>
   );
 }

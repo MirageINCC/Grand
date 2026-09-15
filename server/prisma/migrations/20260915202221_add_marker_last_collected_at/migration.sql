@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "markers" ADD COLUMN     "last_collected_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
