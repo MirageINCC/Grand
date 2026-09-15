@@ -1,6 +1,7 @@
+import { useLayoutEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, useMapEvent } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, useMapEvent } from "react-leaflet";
 import { MAP_MAX_ZOOM, MAP_SIZE } from "../config";
 import type { Marker as MarkerData } from "../api/types";
 import { MarkerLayer } from "./MarkerLayer";
@@ -21,6 +22,36 @@ const bounds: L.LatLngBoundsExpression = [
 const crs = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0),
 });
+
+// Our map is a fixed MAP_SIZE x MAP_SIZE square, but the browser viewport
+// rarely is — at a zoom that merely fits the square's height (or width) the
+// other axis leaves an empty gray margin (visible as white/gray bars beside
+// the island). This keeps the map zoomed in just far enough to always cover
+// the *larger* viewport dimension — like CSS `background-size: cover` — so
+// there's never blank space, while maxBounds still stops panning off the
+// generated tiles. Re-evaluated on every window resize.
+function FitToViewport() {
+  const map = useMap();
+
+  useLayoutEffect(() => {
+    function apply() {
+      map.invalidateSize();
+      const { x: width, y: height } = map.getSize();
+      const coverZoom = Math.log2(Math.max(width, height) / MAP_SIZE);
+      const minZoom = Math.min(Math.max(coverZoom, 0), MAP_MAX_ZOOM);
+      map.setMinZoom(minZoom);
+      if (map.getZoom() < minZoom) {
+        map.setZoom(minZoom);
+      }
+    }
+
+    apply();
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, [map]);
+
+  return null;
+}
 
 // Only mounted for admins (see below) — a click on an existing Marker never
 // reaches here, Leaflet stops that event from bubbling up to the map itself.
@@ -47,11 +78,13 @@ export function MapView({ markers, onPlaceMarker, onEditMarker, onDeleteMarker, 
       zoom={1}
       minZoom={0}
       maxZoom={MAP_MAX_ZOOM}
+      zoomSnap={0}
       maxBounds={bounds}
       maxBoundsViscosity={1}
       style={{ height: "100%", width: "100%", cursor: isAdmin ? "crosshair" : undefined }}
     >
       <TileLayer url="/tiles/{z}/{x}/{y}.png" tileSize={256} noWrap bounds={bounds} attribution="" />
+      <FitToViewport />
       {isAdmin && <ClickHandler onClick={onPlaceMarker} />}
       <MarkerLayer markers={markers} isAdmin={isAdmin} onEdit={onEditMarker} onDelete={onDeleteMarker} />
     </MapContainer>
