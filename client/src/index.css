@@ -360,6 +360,7 @@ button.danger:hover:not(:disabled) {
   padding: 22px;
   width: 360px;
   max-width: 90vw;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -432,6 +433,7 @@ button.danger:hover:not(:disabled) {
 .category-list li input[type="text"],
 .category-list li input:not([type="color"]) {
   flex: 1;
+  min-width: 0;
 }
 
 .category-create-form {
@@ -441,6 +443,41 @@ button.danger:hover:not(:disabled) {
 
 .category-create-form input:not([type="color"]) {
   flex: 1;
+  min-width: 0;
+}
+
+/* Buttons read as full-size CTAs everywhere else, but "Löschen"/"Hinzufügen"
+   sit inline in a tight row next to two other elements — the default button
+   padding was wide enough to push the row past the modal's edge. */
+.category-list button,
+.category-create-form button {
+  padding: 6px 12px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* Native color inputs render inconsistently (and, at height:36px with no
+   set width, as a squashed pill) — pin them to a small square swatch that
+   matches the rest of the dark UI instead. */
+.category-list input[type="color"],
+.category-create-form input[type="color"] {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.category-list input[type="color"]::-webkit-color-swatch-wrapper,
+.category-create-form input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.category-list input[type="color"]::-webkit-color-swatch,
+.category-create-form input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 7px;
 }
 
 .form-error {
