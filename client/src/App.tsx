@@ -5,7 +5,6 @@ import { listCategories, createCategory, updateCategory, deleteCategory } from "
 import { listMarkers, createMarker, updateMarker, deleteMarker, type MarkerInput } from "./api/markers";
 import type { Category, Marker } from "./api/types";
 import { MapView } from "./map/MapView";
-import { NewMarkerButton } from "./map/NewMarkerButton";
 import { MarkerForm } from "./map/MarkerForm";
 import { CategoryManager } from "./map/CategoryManager";
 
@@ -13,7 +12,6 @@ function AppContent() {
   const { isAdmin } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [markers, setMarkers] = useState<Marker[]>([]);
-  const [placing, setPlacing] = useState(false);
   const [draft, setDraft] = useState<{ x: number; y: number } | null>(null);
   const [editingMarker, setEditingMarker] = useState<Marker | null>(null);
   const [managingCategories, setManagingCategories] = useState(false);
@@ -51,7 +49,6 @@ function AppContent() {
       <header className="toolbar">
         <h1>GTA 5 Karte</h1>
         <div className="toolbar-actions">
-          {isAdmin && <NewMarkerButton placing={placing} onToggle={() => setPlacing((p) => !p)} />}
           {isAdmin && (
             <button type="button" onClick={() => setManagingCategories(true)}>
               Kategorien
@@ -64,12 +61,8 @@ function AppContent() {
       <main className="map-container">
         <MapView
           markers={markers}
-          placing={placing}
           isAdmin={isAdmin}
-          onPlaceMarker={(x, y) => {
-            setDraft({ x, y });
-            setPlacing(false);
-          }}
+          onPlaceMarker={(x, y) => setDraft({ x, y })}
           onEditMarker={setEditingMarker}
           onDeleteMarker={(marker) => void handleDeleteMarker(marker)}
         />

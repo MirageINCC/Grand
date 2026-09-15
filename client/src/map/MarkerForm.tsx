@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type CSSProperties, type FormEvent } from "react";
 import type { Category } from "../api/types";
 import type { MarkerInput } from "../api/markers";
 
@@ -49,16 +49,30 @@ export function MarkerForm({ mode, categories, initial, onSubmit, onCancel }: Ma
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={2000} />
         </label>
 
-        <label>
-          Kategorie
-          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
+        <div className="swatch-field">
+          <span className="swatch-field-label">Kategorie</span>
+          <div className="swatch-picker" role="radiogroup" aria-label="Kategorie">
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
+              <label
+                key={c.id}
+                className={c.id === categoryId ? "swatch swatch-selected" : "swatch"}
+                style={{ "--swatch-color": c.color } as CSSProperties}
+                title={c.name}
+              >
+                <input
+                  type="radio"
+                  name="categoryId"
+                  value={c.id}
+                  checked={c.id === categoryId}
+                  onChange={() => setCategoryId(c.id)}
+                  required
+                />
+                <span className="swatch-dot" />
+                <span className="swatch-name">{c.name}</span>
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
 
         {error && <p className="form-error">{error}</p>}
 

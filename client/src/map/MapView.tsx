@@ -22,9 +22,10 @@ const crs = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0),
 });
 
-function ClickHandler({ active, onClick }: { active: boolean; onClick: (x: number, y: number) => void }) {
+// Only mounted for admins (see below) — a click on an existing Marker never
+// reaches here, Leaflet stops that event from bubbling up to the map itself.
+function ClickHandler({ onClick }: { onClick: (x: number, y: number) => void }) {
   useMapEvent("click", (e) => {
-    if (!active) return;
     onClick(e.latlng.lng, e.latlng.lat);
   });
   return null;
@@ -32,14 +33,13 @@ function ClickHandler({ active, onClick }: { active: boolean; onClick: (x: numbe
 
 interface MapViewProps {
   markers: MarkerData[];
-  placing: boolean;
   onPlaceMarker: (x: number, y: number) => void;
   onEditMarker: (marker: MarkerData) => void;
   onDeleteMarker: (marker: MarkerData) => void;
   isAdmin: boolean;
 }
 
-export function MapView({ markers, placing, onPlaceMarker, onEditMarker, onDeleteMarker, isAdmin }: MapViewProps) {
+export function MapView({ markers, onPlaceMarker, onEditMarker, onDeleteMarker, isAdmin }: MapViewProps) {
   return (
     <MapContainer
       crs={crs}
@@ -49,10 +49,10 @@ export function MapView({ markers, placing, onPlaceMarker, onEditMarker, onDelet
       maxZoom={MAP_MAX_ZOOM}
       maxBounds={bounds}
       maxBoundsViscosity={1}
-      style={{ height: "100%", width: "100%", cursor: placing ? "crosshair" : undefined }}
+      style={{ height: "100%", width: "100%", cursor: isAdmin ? "crosshair" : undefined }}
     >
       <TileLayer url="/tiles/{z}/{x}/{y}.png" tileSize={256} noWrap bounds={bounds} attribution="" />
-      <ClickHandler active={placing} onClick={onPlaceMarker} />
+      {isAdmin && <ClickHandler onClick={onPlaceMarker} />}
       <MarkerLayer markers={markers} isAdmin={isAdmin} onEdit={onEditMarker} onDelete={onDeleteMarker} />
     </MapContainer>
   );

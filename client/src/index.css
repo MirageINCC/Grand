@@ -53,9 +53,84 @@ body {
   mix-blend-mode: normal !important;
 }
 
-.new-marker-button.active {
-  background: #e63946;
-  color: #fff;
+.swatch-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.swatch-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 56px;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 2px;
+}
+
+.swatch input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.swatch-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--swatch-color);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.swatch:hover .swatch-dot {
+  transform: scale(1.08);
+}
+
+.swatch input:focus-visible ~ .swatch-dot {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5865f2;
+}
+
+.swatch-selected .swatch-dot {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--swatch-color);
+}
+
+.swatch-name {
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #444;
+}
+
+/* Leaflet positions the icon wrapper itself via an inline transform, so the
+   hover animation targets the SVG inside it instead — animating the wrapper
+   would fight with (and lose to) that inline style. */
+.category-marker-icon svg {
+  transition: transform 0.12s ease;
+  transform-origin: 50% 100%;
+}
+
+.category-marker-icon:hover svg {
+  transform: scale(1.08);
 }
 
 .user-badge {
