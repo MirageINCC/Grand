@@ -131,10 +131,45 @@ body {
 }
 
 .filter-option input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  accent-color: var(--accent);
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  margin: 0;
   flex-shrink: 0;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filter-option input[type="checkbox"]:hover {
+  border-color: rgba(139, 61, 255, 0.55);
+}
+
+.filter-option input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, #7d32ef, var(--accent-soft));
+  border-color: var(--border-strong);
+  box-shadow: 0 0 10px rgba(139, 61, 255, 0.45);
+}
+
+.filter-option input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.filter-option input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(139, 61, 255, 0.25);
 }
 
 .filter-dot {
