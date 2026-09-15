@@ -13,6 +13,9 @@ referenzieren fertige Images, sie bauen nicht selbst):
   (`.github/workflows/docker-publish.yml`) bei jedem Push auf `main`. Das GHCR-Package ist
   **public**, damit Mittwald es ohne Registry-Credentials pullen kann.
 - **`postgres`**: `postgres:16-alpine`, mit einem persistenten Named Volume (`pgdata`).
+- Tiles (`/app/tiles`, read-only) werden per Bind-Mount von `/home/p-i0wsnq/files/map-tiles`
+  auf dem Projekt-Host eingebunden (s. "Kartenbild/Tiles hochladen" unten) — die 32MB an
+  generierten Tile-PNGs liegen also außerhalb des Docker-Images, direkt im Projekt-Dateisystem.
 
 Domain: **https://grand.covern.cloud** (Subdomain von `covern.cloud`, verwaltet über Mittwalds
 eigene Nameserver). Eingerichtet über einen Virtualhost im Grönd-Projekt, der `/` auf den
@@ -82,11 +85,35 @@ curl -s  https://grand.covern.cloud/auth/me            # {"user":null} ohne Cook
 
 Danach im Browser einloggen (`/auth/discord/login`) und prüfen, ob das Admin-Badge erscheint.
 
+## Kartenbild/Tiles hochladen
+
+Tiles werden **nicht** ins Docker-Image gebaut (sie sind ja auch nicht im Git-Repo, s. README) —
+sie liegen als Bind-Mount direkt im Projekt-Dateisystem unter `/home/p-i0wsnq/files/map-tiles`
+und werden vom `app`-Service read-only nach `/app/tiles` gemountet (s. Compose-Ausschnitt oben).
+
+So wurden sie initial hochgeladen (bei einem neuen Kartenbild identisch wiederholen):
+
+1. Lokal generieren: `npm run tiles -- --input <bild> --output ./server/tiles` (Achtung:
+   `npm run tiles` läuft über den `server`-Workspace, das Arbeitsverzeichnis ist dabei `server/`
+   — ein relativer `--output`-Pfad wie `./server/tiles` landet also tatsächlich in
+   `server/server/tiles`, nicht `server/tiles`! Entweder einen absoluten Pfad übergeben oder
+   danach mit `mv`/`rsync` korrigieren.). `MAP_MAX_ZOOM` aus der Skript-Ausgabe in
+   `client/src/config.ts` eintragen.
+2. Da für SSH-Zugriff kein privater Schlüssel lokal vorliegt (die mStudio-eigene
+   `mittwald_user_ssh_key_create` erzeugt das Schlüsselpaar serverseitig und gibt den privaten
+   Teil nie heraus), einen **projektgebundenen SSH-User** mit einem selbst generierten Public
+   Key anlegen (`ssh-keygen` lokal, dann `mittwald_ssh_user_create` mit diesem Public Key,
+   zeitlich befristet z. B. `expires: 1d`).
+3. **Stolperfalle Verzeichnis-Ownership:** Der erste Deploy mit dem Volume-Eintrag lässt Docker
+   den Bind-Mount-Zielordner automatisch anlegen — dabei gehört er `root`, der SSH-User kann
+   dann nicht hineinschreiben (`Permission denied`). Fix: einen **neuen, noch nicht existierenden**
+   Unterordner unter `/home/p-i0wsnq/files/` selbst per SSH anlegen (der ist dann dem Projekt-User
+   gehörend und beschreibbar), den Stack auf diesen neuen Pfad umbiegen, danach hochladen.
+4. Hochladen: `rsync -az -e "ssh -i <key>" server/tiles/ <ssh-user>@p-i0wsnq@ssh.isenstedt.project.host:/home/p-i0wsnq/files/map-tiles/`
+5. Verifizieren: `curl -s -o /dev/null -w "%{http_code}\n" https://grand.covern.cloud/tiles/0/0/0.png` → `200`.
+6. Aufräumen: temporären SSH-User (`mittwald_ssh_user_delete`) und den serverseitig generierten,
+   nutzlosen SSH-Key (`mittwald_user_ssh_key_delete`) wieder entfernen.
+
 ## Offen / nicht Teil dieses Deployments
 
-- **Kartenbild/Tiles**: `server/tiles/` ist auf dem Server aktuell leer — die Karte zeigt eine
-  weiße Fläche. Sobald ein Kartenbild vorliegt: `npm run tiles -- --input <bild> --output
-  ./server/tiles` lokal ausführen, Tiles auf den Server bringen (z. B. per SCP in ein
-  persistentes Volume, das in den `app`-Container gemountet wird) und `MAP_MAX_ZOOM` in
-  `client/src/config.ts` auf den vom Skript ausgegebenen Wert setzen.
 - Backups/Cronjobs für die Postgres-DB sind noch nicht eingerichtet.
