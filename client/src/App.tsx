@@ -47,7 +47,7 @@ function AppContent() {
   return (
     <div className="app">
       <header className="toolbar">
-        <h1>GTA 5 Karte</h1>
+        <h1>TEKKNiNE Interactive Map</h1>
         <div className="toolbar-actions">
           {isAdmin && (
             <button type="button" onClick={() => setManagingCategories(true)}>
@@ -55,6 +55,7 @@ function AppContent() {
             </button>
           )}
           <LoginButton />
+          <img src="/tn-logo.png" alt="TEKKNiNE" className="brand-logo" />
         </div>
       </header>
 

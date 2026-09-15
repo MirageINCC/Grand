@@ -68,7 +68,19 @@ body {
 .toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+}
+
+.brand-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 10px rgba(139, 61, 255, 0.55));
 }
 
 .map-container {
