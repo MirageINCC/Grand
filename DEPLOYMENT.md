@@ -138,6 +138,43 @@ So wurden sie initial hochgeladen (bei einem neuen Kartenbild identisch wiederho
 6. Aufräumen: temporären SSH-User (`mittwald_ssh_user_delete`) und den serverseitig generierten,
    nutzlosen SSH-Key (`mittwald_user_ssh_key_delete`) wieder entfernen.
 
+### Nicht-quadratische Kartenbilder (z. B. eigene FiveM-Textur-Mods)
+
+Die Karte lief zuerst mit einem quadratischen 8192×8192-Bild, dann wurde sie auf eine **eigene**
+Custom-Map des Teams umgestellt (`map_black.png`, 6144×9216, Hochformat — kein GTA-V-Rip, sondern
+selbst erstellte Grafik-Mod-Textur). Ein nicht-quadratisches Bild bringt zwei zusätzliche Punkte:
+
+- **Sharp-Limits**: `.extend()` (für die Transparenz-Polsterung auf die nächste
+  Zweierpotenz-Quadratgröße) lehnt eine einzelne Seite über 10.000px ab — bei einem Bild, das weit
+  von quadratisch entfernt ist, schnell überschritten. `generate-tiles.ts` baut die Polsterung
+  deshalb über `create()` + `.composite()` statt `.extend()`, und deaktiviert Sharps
+  Standard-Pixel-Limit (`limitInputPixels: false`) überall, da das gepolsterte Quadrat leicht über
+  die üblichen ~268 Megapixel kommt.
+- **Client-Bounds**: Bei einem nicht-quadratischen Bild ist ein großer Teil der gepolsterten
+  Zielquadrat-Fläche transparente Polsterung, nicht Kartenbild. `npm run tiles` gibt dafür
+  zusätzlich `MAP_CONTENT_WIDTH`/`MAP_CONTENT_HEIGHT` aus (nur relevant, wenn Breite ≠ Höhe) — die
+  müssen in `client/src/config.ts` gesetzt werden, damit Kamera-Begrenzung und
+  Bildschirmfüllen-Logik (`MapView.tsx`) sich am echten Karteninhalt orientieren statt am ganzen
+  Polster-Quadrat.
+- **Performance**: Die Kachel-Extraktion dekodierte ursprünglich für jede einzelne Kachel das
+  komplette Zoomstufen-Bild neu — bei hoher Zoomstufe (viele Kacheln, großes Bild) dauerte das
+  mehrere Minuten. `generate-tiles.ts` dekodiert pro Zoomstufe jetzt einmal zu rohen Pixeln und
+  schneidet die Kacheln daraus (5461 Kacheln in ~8,5s statt mehreren Minuten).
+
+Zusätzlich, unabhängig von quadratisch/nicht-quadratisch: Falls das Kartenbild selbst transparente
+Bereiche hat (z. B. "Wasser" absichtlich nicht gezeichnet, wie bei `map_black.png`), scheint dort
+sonst Leaflets helle Standard-Hintergrundfarbe durch. Fix: `.leaflet-container`-Hintergrundfarbe in
+`index.css` auf eine Wasserfarbe gesetzt (`!important`, gleiche Begründung wie beim
+Safari-Blend-Mode-Fix oben) — deckt sowohl echte transparente Bereiche im Bild als auch die
+Tile-Polsterung ab.
+
+**Tieferer Zoom über die native Auflösung hinaus**: `MAP_MAX_ZOOM` ist jetzt in
+`MAP_NATIVE_MAX_ZOOM` (= von `generate-tiles.ts` erzeugte Auflösung, scharf) und `MAP_MAX_ZOOM`
+(= wie weit man insgesamt reinzoomen darf, per Default `MAP_NATIVE_MAX_ZOOM + 2`) aufgeteilt.
+`TileLayer`s `maxNativeZoom` sorgt dafür, dass Leaflet für die zusätzlichen Stufen die
+hochauflösendste vorhandene Kachel hochskaliert, statt nicht existierende Kacheln anzufragen —
+wird ab da entsprechend unscharf, ist aber eine bewusste Abwägung für Detail-Inspektion.
+
 ## Offen / nicht Teil dieses Deployments
 
 - Backups/Cronjobs für die Postgres-DB sind noch nicht eingerichtet.
