@@ -2,13 +2,19 @@ import { useLayoutEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, useMap, useMapEvent } from "react-leaflet";
-import { MAP_MAX_ZOOM, MAP_SIZE } from "../config";
+import { MAP_CONTENT_HEIGHT, MAP_CONTENT_WIDTH, MAP_MAX_ZOOM } from "../config";
 import type { Marker as MarkerData } from "../api/types";
 import { MarkerLayer } from "./MarkerLayer";
 
+// The real map content only fills a MAP_CONTENT_WIDTH x MAP_CONTENT_HEIGHT
+// corner of the full [0, MAP_SIZE] world (see config.ts) when the source
+// image wasn't square — everything beyond that is transparent padding the
+// tile generator added to reach a power-of-two square. Bounding to the
+// actual content keeps panning and the fill-viewport zoom below from
+// wandering into (or fitting to) that blank area.
 const bounds: L.LatLngBoundsExpression = [
   [0, 0],
-  [MAP_SIZE, MAP_SIZE],
+  [MAP_CONTENT_HEIGHT, MAP_CONTENT_WIDTH],
 ];
 
 // L.CRS.Simple's default transformation negates lat when converting to pixel
@@ -23,13 +29,13 @@ const crs = L.extend({}, L.CRS.Simple, {
   transformation: new L.Transformation(1, 0, 1, 0),
 });
 
-// Our map is a fixed MAP_SIZE x MAP_SIZE square, but the browser viewport
-// rarely is — at a zoom that merely fits the square's height (or width) the
-// other axis leaves an empty gray margin (visible as white/gray bars beside
-// the island). This keeps the map zoomed in just far enough to always cover
-// the *larger* viewport dimension — like CSS `background-size: cover` — so
-// there's never blank space, while maxBounds still stops panning off the
-// generated tiles. Re-evaluated on every window resize.
+// The map content's aspect ratio rarely matches the browser viewport's — at
+// a zoom that merely fits one axis, the other leaves an empty gray margin
+// (visible as bars beside/above the map). This keeps the map zoomed in just
+// far enough to cover *both* viewport dimensions — like CSS
+// `background-size: cover` — so there's never blank space, while maxBounds
+// still stops panning off the generated tiles. Re-evaluated on every window
+// resize.
 function FitToViewport() {
   const map = useMap();
 
@@ -37,7 +43,7 @@ function FitToViewport() {
     function apply() {
       map.invalidateSize();
       const { x: width, y: height } = map.getSize();
-      const coverZoom = Math.log2(Math.max(width, height) / MAP_SIZE);
+      const coverZoom = Math.max(Math.log2(width / MAP_CONTENT_WIDTH), Math.log2(height / MAP_CONTENT_HEIGHT));
       const minZoom = Math.min(Math.max(coverZoom, 0), MAP_MAX_ZOOM);
       map.setMinZoom(minZoom);
       if (map.getZoom() < minZoom) {
@@ -74,7 +80,7 @@ export function MapView({ markers, onPlaceMarker, onEditMarker, onDeleteMarker, 
   return (
     <MapContainer
       crs={crs}
-      center={[MAP_SIZE / 2, MAP_SIZE / 2]}
+      center={[MAP_CONTENT_HEIGHT / 2, MAP_CONTENT_WIDTH / 2]}
       zoom={1}
       minZoom={0}
       maxZoom={MAP_MAX_ZOOM}
