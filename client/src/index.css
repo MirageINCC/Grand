@@ -53,6 +53,15 @@ body {
   mix-blend-mode: normal !important;
 }
 
+/* The map image's own "water" is transparent (alpha 0), not drawn — likely so
+   it composites cleanly in FiveM — and our tile padding beyond the image is
+   transparent too. Both need a real water color behind them instead of
+   Leaflet's default light-gray container background showing through as an
+   odd white/gray halo. !important for the same reason as above. */
+.leaflet-container {
+  background: #0a1a24 !important;
+}
+
 .swatch-field {
   display: flex;
   flex-direction: column;

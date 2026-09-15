@@ -7,9 +7,20 @@ export const MAP_SIZE = 256;
 
 /**
  * Set this to the MAX_ZOOM value printed by `npm run tiles` after generating
- * the tile pyramid (server/scripts/generate-tiles.ts) for your map image.
+ * the tile pyramid (server/scripts/generate-tiles.ts) for your map image —
+ * the deepest zoom level actual tiles exist for (the source image's native
+ * resolution). Passed to TileLayer as `maxNativeZoom`.
  */
-export const MAP_MAX_ZOOM = 6;
+export const MAP_NATIVE_MAX_ZOOM = 6;
+
+/**
+ * How far the map may zoom in *past* MAP_NATIVE_MAX_ZOOM — Leaflet just
+ * upscales the highest-resolution tile for these extra levels rather than
+ * requesting ones that don't exist, so image quality degrades the further
+ * past MAP_NATIVE_MAX_ZOOM you go. Purely a "let people zoom in a bit
+ * further to inspect something" allowance; raise/lower to taste.
+ */
+export const MAP_MAX_ZOOM = MAP_NATIVE_MAX_ZOOM + 2;
 
 /**
  * The real map content's width/height within the [0, MAP_SIZE] world, in the

@@ -2,7 +2,7 @@ import { useLayoutEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, useMap, useMapEvent } from "react-leaflet";
-import { MAP_CONTENT_HEIGHT, MAP_CONTENT_WIDTH, MAP_MAX_ZOOM } from "../config";
+import { MAP_CONTENT_HEIGHT, MAP_CONTENT_WIDTH, MAP_MAX_ZOOM, MAP_NATIVE_MAX_ZOOM } from "../config";
 import type { Marker as MarkerData } from "../api/types";
 import { MarkerLayer } from "./MarkerLayer";
 
@@ -89,7 +89,14 @@ export function MapView({ markers, onPlaceMarker, onEditMarker, onDeleteMarker, 
       maxBoundsViscosity={1}
       style={{ height: "100%", width: "100%", cursor: isAdmin ? "crosshair" : undefined }}
     >
-      <TileLayer url="/tiles/{z}/{x}/{y}.png" tileSize={256} noWrap bounds={bounds} attribution="" />
+      <TileLayer
+        url="/tiles/{z}/{x}/{y}.png"
+        tileSize={256}
+        noWrap
+        bounds={bounds}
+        maxNativeZoom={MAP_NATIVE_MAX_ZOOM}
+        attribution=""
+      />
       <FitToViewport />
       {isAdmin && <ClickHandler onClick={onPlaceMarker} />}
       <MarkerLayer markers={markers} isAdmin={isAdmin} onEdit={onEditMarker} onDelete={onDeleteMarker} />
