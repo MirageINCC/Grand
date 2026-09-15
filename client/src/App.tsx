@@ -47,7 +47,10 @@ function AppContent() {
   return (
     <div className="app">
       <header className="toolbar">
-        <h1>TEKKNiNE Interactive Map</h1>
+        <div className="brand">
+          <img src="/tn-logo.png" alt="TEKKNiNE" className="brand-logo" />
+          <h1>TEKKNiNE Interactive Map</h1>
+        </div>
         <div className="toolbar-actions">
           {isAdmin && (
             <button type="button" onClick={() => setManagingCategories(true)}>
@@ -55,7 +58,6 @@ function AppContent() {
             </button>
           )}
           <LoginButton />
-          <img src="/tn-logo.png" alt="TEKKNiNE" className="brand-logo" />
         </div>
       </header>
 

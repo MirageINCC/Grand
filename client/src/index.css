@@ -58,11 +58,21 @@ body {
   color: var(--text);
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .toolbar h1 {
   font-size: 18px;
   margin: 0;
   font-weight: 800;
   letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #ffffff, var(--accent-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .toolbar-actions {
@@ -75,6 +85,7 @@ body {
   width: 38px;
   height: 38px;
   object-fit: contain;
+  flex-shrink: 0;
   transition: transform 0.25s ease, filter 0.25s ease;
 }
 
